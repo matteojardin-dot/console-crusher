@@ -1,18 +1,151 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Crusher</title>
+    <!-- Tailwind CSS for sleek interface layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for digital aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0e14;
+            color: #d1d5db;
+        }
+        .digital-display {
+            font-family: 'Orbitron', sans-serif;
+        }
 
+        /* M32 Dark Carbon Fiber texture simulation background */
+        .console-chassis {
+            background-color: #151a22;
+            background-image: linear-gradient(45deg, #12161d 25%, transparent 25%), 
+                              linear-gradient(-45deg, #12161d 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #12161d 75%), 
+                              linear-gradient(-45deg, transparent 75%, #12161d 75%);
+            background-size: 4px 4px;
+            background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+            border: 4px solid #0f1319;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        /* M32 physical slider slot alignment groove */
+        .fader-track {
+            background: linear-gradient(90deg, #07090d 0%, #1a202c 40%, #2d3748 50%, #1a202c 60%, #07090d 100%);
+            box-shadow: inset 3px 0 6px rgba(0,0,0,0.9), 1px 0 1px rgba(255,255,255,0.05);
+            width: 6px;
+            position: relative;
+        }
 
-    
-    
-    
-    
-    
-    
-    
-    
+        /* Physical scale tick marks lines flanking the fader path */
+        .fader-track::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 5%;
+            bottom: 5%;
+            width: 4px;
+            background: linear-gradient(to bottom, 
+                #475569 1px, transparent 1px 10%,
+                #475569 1px, transparent 1px 20%,
+                #94a3b8 2px, transparent 2px 30%,
+                #475569 1px, transparent 1px 40%,
+                #475569 1px, transparent 1px 50%,
+                #cbd5e1 2px, transparent 2px 60%,
+                #475569 1px, transparent 1px 70%,
+                #475569 1px, transparent 1px 80%,
+                #475569 1px, transparent 1px 90%,
+                #475569 1px
 
+            );
+            background-size: 100% 20px;
+            opacity: 0.4;
+        }
+        /* Ergonomic Weighted Brushed Aluminum Fader Handle caps */
+        .fader-handle {
+            background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 30%, #64748b 48%, #1e293b 50%, #64748b 52%, #cbd5e1 80%, #f8fafc 100%);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid #475569;
+            border-radius: 3px;
+            cursor: grab;
+            width: 20px;
+            height: 44px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .fader-handle:active {
+            cursor: grabbing;
+            background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 30%, #94a3b8 48%, #334155 50%, #94a3b8 52%, #e2e8f0 80%, #ffffff 100%);
 
+        }
+        /* M32 Iconic high-contrast backlit button styles */
+        .console-btn-sel {
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            border: 1px solid #101419;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+            transition: all 0.15s ease;
+        }
+        .console-btn-sel.active {
+            background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+            border-color: #b45309;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6), inset 0 1px 1px rgba(255,255,255,0.3);
+            color: #000000 !important;
+            font-weight: 700;
+        }
+        .console-btn-mute {
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            border: 1px solid #101419;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
 
-    
+            color: #ef4444;
+        }
+        .console-btn-mute.active {
+            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+            border-color: #7f1d1d;
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.7), inset 0 1px 1px rgba(255,255,255,0.2);
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        html { height: 100%; overflow: hidden; }
+        body { height: 100dvh; overflow: hidden; }
+
+        /* Strip geometry: sizes scale with the window so all 25 faders always fit on one row without scrolling */
+        .strip { display: flex; flex-direction: column; align-items: center; gap: clamp(2px, 0.6vh, 6px); padding: 3px; min-height: 0; overflow: hidden; }
+        .strip-btn { height: clamp(20px, 3.6vh, 28px); flex-shrink: 0; line-height: 1; }
+        .strip-meter { height: clamp(24px, 7vh, 60px); flex-shrink: 0; }
+        .strip-readout { height: clamp(30px, 5.6vh, 46px); flex-shrink: 0; }
+        .fs-sm { font-size: clamp(6px, 0.62vw, 9px); }
+        .fs-xs { font-size: clamp(6px, 0.58vw, 9px); }
+        .section-label { height: 14px; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; white-space: nowrap; overflow: hidden; }
+        .console-chassis { position: relative; }
+        .fs-num { font-size: clamp(9px, 1vw, 15px); }
+
+        /* Feedback overlay: appears over the console, then fades out by itself. Never blocks the faders. */
+        .feedback-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; z-index: 50; opacity: 0; border-radius: 1rem; }
+        .feedback-overlay.success { background: radial-gradient(ellipse at center, rgba(6, 78, 59, 0.62), rgba(2, 6, 23, 0.40) 72%); }
+        .feedback-overlay.fail { background: radial-gradient(ellipse at center, rgba(127, 29, 29, 0.62), rgba(2, 6, 23, 0.40) 72%); }
+        .feedback-overlay.show { animation: feedbackFade 1.8s ease-out forwards; }
+        .feedback-overlay.show .feedback-title { animation: feedbackPop 0.35s ease-out; }
+        @keyframes feedbackFade { 0% { opacity: 0; } 8% { opacity: 1; } 55% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes feedbackPop { from { transform: scale(0.82); } to { transform: scale(1); } }
+        .feedback-title { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 0.12em; font-size: clamp(28px, 6vw, 84px); line-height: 1.05; }
+        .feedback-overlay.success .feedback-title { color: #34d399; text-shadow: 0 0 24px rgba(16, 185, 129, 0.75); }
+        .feedback-overlay.fail .feedback-title { color: #f87171; text-shadow: 0 0 24px rgba(220, 38, 38, 0.75); }
+        .feedback-detail { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(16px, 2.4vw, 34px); color: #fbbf24; margin-top: 0.4em; text-shadow: 0 0 14px rgba(245, 158, 11, 0.6); }
+        .feedback-sub { font-size: clamp(11px, 1.1vw, 16px); color: #cbd5e1; margin-top: 0.4em; letter-spacing: 0.05em; }
+        .section-label.sends-active { color: #f59e0b; }
+        .section-divider { justify-self: center; width: 1px; background: rgba(71, 85, 105, 0.5); }
+        /* Translucent Digital Scribble Strip LCD module overrides */
+        .scribble-strip {
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.85);
+            border: 2px solid #11151c;
+        }
+    </style>
+</head>
+<body class="h-[100dvh] overflow-hidden p-2 flex flex-col gap-2 select-none">
+
+    <!-- UPPER DISPLAY CONSOLE: Branding HUD Display Monitor Panel -->
 
     <header class="w-full max-w-[1800px] mx-auto flex items-center justify-between gap-3 bg-slate-900 border-2 border-slate-950 px-3 py-1.5 rounded-xl shadow-2xl relative overflow-hidden shrink-0">
         <div class="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-40"></div>
@@ -21,185 +154,884 @@
             CONSOLE CRUSHER
         </h1>
 
-        
+        <!-- Compact monitor screen -->
         <div class="flex-1 max-w-[1100px] bg-slate-950 border border-slate-800/80 rounded-lg p-1.5 grid grid-cols-4 gap-2 items-center shadow-inner">
             <div class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-center">
                 <span class="text-[8px] text-slate-500 block uppercase tracking-wider leading-tight">Input Layer</span>
-                <span class="text-cyan-400 text-[11px] font-bold font-mono">CH 01-16</span>
+                <span id="screen-input-layer" class="text-cyan-400 text-[11px] font-bold font-mono">CH 01-16</span>
             </div>
             <div class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-center">
                 <span class="text-[8px] text-slate-500 block uppercase tracking-wider leading-tight">Master Bank</span>
-                <span class="text-emerald-400 text-[11px] font-bold font-mono">DCA 1-8</span>
+                <span id="screen-master-bank" class="text-emerald-400 text-[11px] font-bold font-mono">DCA 1-8</span>
             </div>
             <div class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-center">
                 <span class="text-[8px] text-slate-500 block uppercase tracking-wider leading-tight">Active Focus</span>
-                <span class="text-amber-400 text-[11px] font-bold font-mono">CH 01</span>
+                <span id="screen-selected-ch" class="text-amber-400 text-[11px] font-bold font-mono">CH 01</span>
             </div>
             <div class="text-[10px] text-slate-400 font-mono truncate border-l border-slate-800 pl-2 min-w-0">
                 <span class="text-cyan-400 block text-[8px] uppercase font-bold tracking-wide leading-tight">Status Monitor:</span>
-                <span class="block truncate">Surface initialized successfully.</span>
+                <span id="console-status-text" class="block truncate">Surface initialized successfully.</span>
             </div>
         </div>
-            
+            <!-- Score -->
         <div class="shrink-0 flex gap-3 items-center bg-slate-950 border border-slate-800/80 rounded-lg px-3 py-1 shadow-inner digital-display">
             <div class="text-center">
                 <span class="block text-[8px] text-slate-500 uppercase tracking-wider">Score</span>
-                <span class="text-amber-400 text-base font-bold">0</span>
+                <span id="score-value" class="text-amber-400 text-base font-bold">0</span>
             </div>
             <div class="text-center border-l border-slate-800 pl-3">
                 <span class="block text-[8px] text-slate-500 uppercase tracking-wider">Best</span>
-                <span class="text-cyan-400 text-base font-bold">0</span>
+                <span id="best-value" class="text-cyan-400 text-base font-bold">0</span>
             </div>
         </div>
     </header>
 
-    
+    <!-- CORE LOWER CONTROL CONSOLE SURFACE PANEL ASSEMBLY -->
     <main class="w-full max-w-[1800px] mx-auto flex-1 min-h-0 flex">
 
-        
+        <!-- SINGLE CONSOLE SURFACE: layer keys on top, ONE row of 25 faders (16 Inputs | 8 Group Masters | Main LR), task bar below -->
         <section class="console-chassis p-3 rounded-2xl flex flex-col gap-2 w-full min-h-0">
 
-            
-            <div class="feedback-overlay">
-                <div class="feedback-title"></div>
-                <div class="feedback-detail"></div>
-                <div class="feedback-sub"></div>
+            <!-- Feedback overlay (Crushing! / Try Again!) -->
+            <div id="feedback-overlay" class="feedback-overlay" aria-live="polite">
+                <div id="feedback-title" class="feedback-title"></div>
+                <div id="feedback-detail" class="feedback-detail"></div>
+                <div id="feedback-sub" class="feedback-sub"></div>
             </div>
 
-            
+            <!-- Top Control Row -->
             <div class="shrink-0 flex flex-wrap justify-between items-center gap-x-4 gap-y-1.5 pb-2 border-b border-slate-950/60 shadow-sm">
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-[10px] font-bold text-slate-400 tracking-widest mr-1">INPUT LAYERS:</span>
-                    
+                    <button id="btn-input-l1" onclick="switchInputLayer('1-16')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-cyan-600/20 border-cyan-500/50 text-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.2)]">
                         CH 01-16
-                    
-                    
+                    </button>
+                    <button id="btn-input-l2" onclick="switchInputLayer('17-32')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200">
                         CH 17-32
-                    
-                    <span class="text-cyan-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-900 shadow-inner text-[10px] font-bold uppercase tracking-wider ml-1">CH 01-16 ACTIVE</span>
+                    </button>
+                    <span class="text-cyan-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-900 shadow-inner text-[10px] font-bold uppercase tracking-wider ml-1" id="input-layer-title-label">CH 01-16 ACTIVE</span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    
+                    <button id="btn-sends-on-faders" onclick="toggleSendsOnFaders()" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200">
                         SENDS ON FADERS
-                    
-                    <span class="min-w-[130px] text-center text-amber-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-900 shadow-inner text-[10px] font-bold uppercase tracking-wider">OFF</span>
+                    </button>
+                    <span id="sends-status-label" class="min-w-[130px] text-center text-amber-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-900 shadow-inner text-[10px] font-bold uppercase tracking-wider">OFF</span>
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-[10px] font-bold text-slate-400 tracking-widest mr-1">MASTER LAYERS:</span>
-                    
+                    <button id="btn-master-m1" onclick="switchMasterLayer('DCA')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-emerald-600/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.2)]">
                         DCA 1-8
-                    
-                    
+                    </button>
+                    <button id="btn-master-m2" onclick="switchMasterLayer('BUS1-8')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200">
                         BUS 1-8
-                    
-                    
+                    </button>
+                    <button id="btn-master-m3" onclick="switchMasterLayer('BUS9-16')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200">
                         BUS 9-16
-                    
-                    
+                    </button>
+                    <button id="btn-master-m4" onclick="switchMasterLayer('MTX')" class="py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200">
                         MTX / MN
-                    
+                    </button>
 
-                    
-                    <div class="opacity-0 min-w-[120px] text-[9px] bg-cyan-950/40 border border-cyan-900/60 text-cyan-400 p-1 rounded text-center transition-all duration-200">
+                    <!-- Transient Flash Notification Screen Widget -->
+                    <div id="m32-toast-node" class="opacity-0 min-w-[120px] text-[9px] bg-cyan-950/40 border border-cyan-900/60 text-cyan-400 p-1 rounded text-center transition-all duration-200">
                         Layer Sync
                     </div>
                 </div>
             </div>
 
-            
+            <!-- THE FADER ROW: a 27-column grid (16 inputs, divider, 8 masters, divider, main) so every fader shares one baseline and the row always fits the window width -->
             <div class="flex-1 min-h-0 flex flex-col">
-                <div class="flex-1 min-h-0 grid gap-x-1 gap-y-1 bg-slate-950/20 p-1.5 rounded-xl border border-slate-950/40">
+                <div class="flex-1 min-h-0 grid gap-x-1 gap-y-1 bg-slate-950/20 p-1.5 rounded-xl border border-slate-950/40"
+                     style="grid-template-columns: repeat(16, minmax(0, 1fr)) 9px repeat(8, minmax(0, 1fr)) 9px minmax(0, 1.5fr); grid-template-rows: auto minmax(0, 1fr);">
 
-                    <div class="section-label">Input Channels</div>
-                    <div class="section-label">Group Masters</div>
-                    <div class="section-label">Main</div>
+                    <div id="input-section-label" class="section-label" style="grid-column: 1 / 17; grid-row: 1;">Input Channels</div>
+                    <div class="section-label" style="grid-column: 18 / 26; grid-row: 1;">Group Masters</div>
+                    <div class="section-label" style="grid-column: 27; grid-row: 1;">Main</div>
 
-                    <div class="section-divider"></div>
-                    <div class="section-divider"></div>
+                    <div class="section-divider" style="grid-column: 17; grid-row: 1 / 3;"></div>
+                    <div class="section-divider" style="grid-column: 26; grid-row: 1 / 3;"></div>
 
-                    
-                    <div class="contents"></div>
+                    <!-- 16 input strips are injected here (columns 1-16) -->
+                    <div id="input-fader-strips-bay" class="contents"></div>
 
-                    
-                    <div class="contents"></div>
+                    <!-- 8 master strips are injected here (columns 18-25) -->
+                    <div id="master-fader-strips-bay" class="contents"></div>
 
-                    
-                    <div class="strip border border-slate-700 bg-slate-950/60 rounded-lg shadow-xl">
+                    <!-- Main LR strip (column 27) -->
+                    <div class="strip border border-slate-700 bg-slate-950/60 rounded-lg shadow-xl" style="grid-column: 27; grid-row: 2;">
                         <div class="strip-btn w-full flex items-center justify-center rounded bg-slate-950/70 border border-slate-950 fs-sm font-bold text-slate-300 uppercase tracking-widest">
                             Main LR
                         </div>
 
-                        
+                        <!-- Main Stereo VU -->
                         <div class="strip-meter flex gap-1 items-stretch justify-center bg-slate-950 p-1 rounded-lg border border-slate-900 w-full max-w-[42px] shadow-inner">
                             <div class="w-1.5 bg-slate-900 rounded relative overflow-hidden flex flex-col justify-end">
-                                <div class="w-full transition-all duration-75 bg-gradient-to-t from-emerald-500 via-amber-400 to-red-500" style="height: 45%;"></div>
+                                <div id="vu-main-l" class="w-full transition-all duration-75 bg-gradient-to-t from-emerald-500 via-amber-400 to-red-500" style="height: 45%;"></div>
                             </div>
                             <div class="w-1.5 bg-slate-900 rounded relative overflow-hidden flex flex-col justify-end">
-                                <div class="w-full transition-all duration-75 bg-gradient-to-t from-emerald-500 via-amber-400 to-red-500" style="height: 45%;"></div>
+                                <div id="vu-main-r" class="w-full transition-all duration-75 bg-gradient-to-t from-emerald-500 via-amber-400 to-red-500" style="height: 45%;"></div>
                             </div>
                         </div>
 
-                        
+                        <!-- Main Fader -->
                         <div class="fader-track rounded-full flex-1 min-h-[60px] relative flex justify-center items-end py-1 my-1">
-                            <div class="fader-handle absolute" style="bottom: calc;">
+                            <div id="fader-handle-main-lr" class="fader-handle absolute" style="bottom: calc(60% - 22px);" onmousedown="initiateMainLrFaderDrag(event)">
                                 <div class="w-full h-[2px] bg-slate-950 absolute top-1/2 left-0 -translate-y-1/2 opacity-70"></div>
                             </div>
                         </div>
 
-                        <div class="strip-readout w-full flex items-center justify-center fs-xs text-emerald-400 font-bold font-mono bg-slate-950 px-1 rounded border border-slate-900 tracking-tighter shadow">0.0 dB</div>
+                        <div class="strip-readout w-full flex items-center justify-center fs-xs text-emerald-400 font-bold font-mono bg-slate-950 px-1 rounded border border-slate-900 tracking-tighter shadow" id="label-main-lr-db">0.0 dB</div>
 
-                        
+                        <!-- spacer where the other strips have a MUTE key -->
                         <div class="strip-btn w-full"></div>
                     </div>
                 </div>
             </div>
 
-            
+            <!-- Task Module Footer Box -->
             <div class="shrink-0 bg-slate-950/80 border border-slate-950/50 px-3 py-2 rounded-xl flex flex-row justify-between items-center gap-3 shadow-inner">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
                     <div class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-bold font-mono text-[10px] uppercase tracking-wider px-2 py-1 rounded">
                         Task
                     </div>
-                    <div class="text-xs text-slate-300 font-medium leading-snug">
+                    <div id="m32-tip" class="text-xs text-slate-300 font-medium leading-snug">
                         Turn CH. 2 down 2 dB, to -2 dB.
                     </div>
                 </div>
                 <div class="shrink-0 text-right font-mono leading-tight">
-                    <div class="text-[11px] text-slate-300">0:00</div>
-                    <div class="text-[11px] text-amber-400 font-bold">1000 pts</div>
+                    <div id="task-timer" class="text-[11px] text-slate-300">0:00</div>
+                    <div id="task-points" class="text-[11px] text-amber-400 font-bold">1000 pts</div>
                 </div>
-                
+                <button onclick="checkM32FaderState()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-[10px] rounded border border-slate-700 uppercase tracking-wider transition-all whitespace-nowrap shadow-md">
                     Check
-                
+                </button>
             </div>
         </section>
     </main>
 
+    <!-- SYSTEM INTERACTION LOGIC ENGINE SCRIPT CODES BLOCK -->
+    <script>
+        let currentInputLayer = '1-16';
+        let currentMasterLayer = 'DCA';
+        let currentlySelectedChannelId = 1;
+        let mainStereoVolumeValue = 60; 
+        let activeScenarioIndex = 0;
+        let sendsOnFadersActive = false;
+        let selectedSendBus = null; // 1-16, or null until a bus is picked
+
+        const matrixConsoleData = {
+            inputs: {},
+
+            masters: {}
+        };
+
+        const scenarios = [
+            // ---- Part 1: channel faders and mutes ----
+            {
+                text: "Turn CH. 2 down 2 dB, to -2 dB.",
+                par: 15,
+                validate: () => channelLevelDb(2) === -2
+            },
+            {
+                text: "Bring CH. 5 up 1 dB, to +1 dB.",
+                par: 15,
+                validate: () => channelLevelDb(5) === 1
+            },
+            {
+                text: "CH. 8 is a little quiet. Raise it 2 dB, from -1 dB to +1 dB.",
+                par: 15,
+                validate: () => channelLevelDb(8) === 1
+            },
+            {
+                text: "Lower CH. 11 by 3 dB, to -3 dB.",
+                par: 15,
+                validate: () => channelLevelDb(11) === -3
+            },
+            {
+                text: "Mute CH. 6.",
+                par: 10,
+                validate: () => matrixConsoleData.inputs[6].isMuted === true
+            },
+            {
+                text: "Switch to layer CH 17-32 and lower CH. 18 by 2 dB, to -2 dB.",
+                par: 20,
+                validate: () => channelLevelDb(18) === -2
+            },
+            {
+                text: "Stay on layer CH 17-32 and mute CH. 20.",
+                par: 10,
+                validate: () => currentInputLayer === '17-32' && matrixConsoleData.inputs[20].isMuted === true
+            },
+
+            // ---- Part 2: master faders ----
+            {
+                text: "Switch the master faders to DCA 1-8 and lower DCA 2 by 2 dB, to -2 dB.",
+                par: 20,
+                validate: () => shownDb(matrixConsoleData.masters['DCA'][1].faderPositionPercent) === -2
+            },
+            {
+                text: "Switch the master faders to BUS 1-8 and raise Bus 3 by 1 dB, to +1 dB.",
+                par: 20,
+                validate: () => shownDb(matrixConsoleData.masters['BUS1-8'][2].faderPositionPercent) === 1
+            },
+            {
+                text: "Switch the master faders to MTX / MN and lower Matrix 1 by 3 dB, to -3 dB.",
+                par: 20,
+                validate: () => shownDb(matrixConsoleData.masters['MTX'][0].faderPositionPercent) === -3
+            },
+            {
+                text: "Lower the Main LR fader by 1 dB, to -1 dB.",
+                par: 15,
+                validate: () => shownDb(mainStereoVolumeValue) === -1
+            },
+
+            // ---- Part 3: Sends on Faders ----
+            {
+                text: "Sends on Faders: go back to layer CH 01-16, switch the master faders to BUS 1-8, tap the Bus 1 name, and press SENDS ON FADERS. The input faders now set how much of each channel goes to Bus 1. Raise the CH. 8 send by 2 dB, from -1 dB to +1 dB.",
+                par: 50,
+                validate: () => sendLevelDb(8, 1) === 1
+            },
+            {
+                text: "Still on Bus 1: lower the CH. 1 send by 3 dB, to -4 dB.",
+                par: 15,
+                validate: () => sendLevelDb(1, 1) === -4
+            },
+            {
+                text: "Still on Bus 1: lower the CH. 5 send by 2 dB, to -3 dB.",
+                par: 15,
+                validate: () => sendLevelDb(5, 1) === -3
+            },
+            {
+                text: "Tap the Bus 2 name and raise the CH. 13 send by 1 dB, from -2 dB to -1 dB.",
+                par: 20,
+                validate: () => sendLevelDb(13, 2) === -1
+            },
+            {
+                text: "Still on Bus 2: raise the CH. 8 send to 0 dB, and lower the CH. 6 send to -4 dB.",
+                par: 25,
+                validate: () => sendLevelDb(8, 2) === 0 && sendLevelDb(6, 2) === -4
+            },
+            {
+                text: "Switch the master faders to BUS 9-16, tap the Bus 9 name, and lower the CH. 9 send by 2 dB, from -1 dB to -3 dB.",
+                par: 30,
+                validate: () => sendLevelDb(9, 9) === -3
+            },
+            {
+                text: "Switch to layer CH 17-32, tap Bus 3 (on BUS 1-8), and raise the CH. 17 send by 2 dB, from -2 dB to 0 dB.",
+                par: 30,
+                validate: () => sendLevelDb(17, 3) === 0
+            },
+            {
+                text: "Tap Bus 4 and lower both the CH. 21 and CH. 22 sends by 1 dB, from -2 dB to -3 dB.",
+                par: 25,
+                validate: () => sendLevelDb(21, 4) === -3 && sendLevelDb(22, 4) === -3
+            },
+            {
+                text: "Turn SENDS ON FADERS off, go back to layer CH 01-16, and raise CH. 2 by 1 dB, from -2 dB to -1 dB.",
+                par: 30,
+                validate: () => sendsOnFadersActive === false && channelLevelDb(2) === -1
+            }
+        ];
+
+        
+const stripColors = {
+            1: "bg-cyan-950/70 text-cyan-400 border-cyan-800/60", 
+            2: "bg-cyan-950/70 text-cyan-400 border-cyan-800/60",
+            3: "bg-cyan-950/70 text-cyan-400 border-cyan-800/60",
+            4: "bg-cyan-950/70 text-cyan-400 border-cyan-800/60",
+            5: "bg-emerald-950/70 text-emerald-400 border-emerald-800/60",
+            6: "bg-amber-950/70 text-amber-400 border-amber-800/60",
+            7: "bg-amber-950/70 text-amber-400 border-amber-800/60",
+            8: "bg-fuchsia-950/70 text-fuchsia-300 border-fuchsia-800/60",
+            19: "bg-purple-950/70 text-purple-400 border-purple-800/60",
+            20: "bg-purple-950/70 text-purple-400 border-purple-800/60",
+            21: "bg-fuchsia-950/70 text-fuchsia-300 border-fuchsia-800/60",
+            22: "bg-fuchsia-950/70 text-fuchsia-300 border-fuchsia-800/60"
+        };
+
+        const masterLayerConfigurations = {
+            'DCA': ['DCA 1', 'DCA 2', 'DCA 3', 'DCA 4', 'DCA 5', 'DCA 6', 'DCA 7', 'DCA 8'],
+            'BUS1-8': ['Bus 1', 'Bus 2', 'Bus 3', 'Bus 4', 'Bus 5', 'Bus 6', 'Bus 7', 'Bus 8'],
+            'BUS9-16': ['Bus 9', 'Bus 10', 'Bus 11', 'Bus 12', 'Bus 13', 'Bus 14', 'Bus 15', 'Bus 16'],
+            'MTX': ['Matrix 1', 'Matrix 2', 'Matrix 3', 'Matrix 4', 'Matrix 5', 'Matrix 6', 'Mono', null]
+        };
+
+        function buildInitialConsoleData() {
+            matrixConsoleData.inputs = {};
+            matrixConsoleData.masters = {};
+
+            for (let i = 1; i <= 32; i++) {
+                // sends[0] is the send to Bus 1 ... sends[15] is the send to Bus 16 (0 = all the way down)
+                const sends = [];
+                for (let b = 0; b < 16; b++) sends.push(0);
+                // Realistic starting mix (50 = -1 dB, 40 = -2 dB); everything else starts all the way down
+                if (i <= 8) sends[0] = 50;               // CH. 1-8   -> Bus 1 at -1 dB
+                if (i <= 16) sends[1] = 40;              // CH. 1-16  -> Bus 2 at -2 dB
+                if (i >= 9 && i <= 16) sends[8] = 50;    // CH. 9-16  -> Bus 9 at -1 dB
+                if (i >= 17 && i <= 24) sends[2] = 40;   // CH. 17-24 -> Bus 3 at -2 dB
+                if (i >= 17) sends[3] = 40;              // CH. 17-32 -> Bus 4 at -2 dB
+
+                matrixConsoleData.inputs[i] = {
+                    id: i,
+                    name: `${i}`,
+                    faderPositionPercent: i === 8 ? 50 : 60,   // everything at 0 dB, except CH. 8 at -1 dB
+                    isMuted: false,
+                    sends: sends
+                };
+            }
+
+            Object.keys(masterLayerConfigurations).forEach(layerKey => {
+                matrixConsoleData.masters[layerKey] = [];
+                masterLayerConfigurations[layerKey].forEach((nameStr, idx) => {
+                    matrixConsoleData.masters[layerKey].push({
+                        index: idx + 1,
+                        name: nameStr || '--',
+                        unassigned: nameStr === null,
+                        faderPositionPercent: nameStr === null ? 0 : 60,
+                        isMuted: false
+                    });
+                });
+            });
+        }
+        buildInitialConsoleData();
+
+        // Put the whole console back to its starting state (used when the last task is finished and the game starts over)
+        function resetConsoleForNewRound() {
+            buildInitialConsoleData();
+            currentlySelectedChannelId = 1;
+            mainStereoVolumeValue = 60;
+            sendsOnFadersActive = false;
+            selectedSendBus = null;
+
+            const mainHandle = document.getElementById('fader-handle-main-lr');
+            if (mainHandle) mainHandle.style.bottom = 'calc(60% - 22px)';
+            document.getElementById('label-main-lr-db').innerText = convertPercentageToDbScaleString(60);
+            document.getElementById('screen-selected-ch').innerText = 'CH 01';
+
+            updateSendsUI();
+            switchInputLayer('1-16');
+            switchMasterLayer('DCA');
+        }
+
+        
+window.onload = function() {
+            renderActiveInputStripsBay();
+            renderActiveMasterStripsBay();
+            updateSendsUI();
+            updateScenarioUI();
+            executeSignalVUFluctuationClockLoop();
+            setInterval(updateLiveTaskScore, 200);
+            updateScoreDisplay();
+        };
+
+        let sharedBellAudioContext = null;
+
+        function triggerSuccessBellSound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+
+                if (!sharedBellAudioContext) sharedBellAudioContext = new AudioContext();
+                const ctx = sharedBellAudioContext;
+                if (ctx.state === 'suspended') ctx.resume();
+
+                const now = ctx.currentTime;
+                const gainNode = ctx.createGain();
+                gainNode.gain.setValueAtTime(0.0001, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+                gainNode.connect(ctx.destination);
+
+                // Bell partials: fundamental plus bright overtones
+                [880, 1320, 1760, 2640].forEach((freq, n) => {
+                    const osc = ctx.createOscillator();
+                    const partialGain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+                    partialGain.gain.setValueAtTime(1 / (n + 1), now);
+                    osc.connect(partialGain);
+                    partialGain.connect(gainNode);
+                    osc.start(now);
+                    osc.stop(now + 1.5);
+                });
+            } catch (err) {
+                console.warn("Audio could not be played.", err);
+            }
+        }
+
+        // ----- SCORING: faster = more points -----
+        // Each task is worth up to 1000 points. Finish within the task's "par" time for the full 1000;
+        // the points then drop steadily down to a minimum of 100 at 4x par.
+        const MAX_TASK_POINTS = 1000;
+        const MIN_TASK_POINTS = 100;
+        let totalScore = 0;
+        let bestScore = 0;
+        let taskStartTime = 0;
+
+        function pointsForElapsed(elapsedSeconds, parSeconds) {
+            if (elapsedSeconds <= parSeconds) return MAX_TASK_POINTS;
+            const slowestSeconds = parSeconds * 4;
+            if (elapsedSeconds >= slowestSeconds) return MIN_TASK_POINTS;
+            const fraction = (elapsedSeconds - parSeconds) / (slowestSeconds - parSeconds);
+            const raw = MAX_TASK_POINTS - (MAX_TASK_POINTS - MIN_TASK_POINTS) * fraction;
+            return Math.round(raw / 10) * 10;
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-value').innerText = totalScore.toLocaleString();
+            document.getElementById('best-value').innerText = bestScore.toLocaleString();
+        }
+
+        function updateLiveTaskScore() {
+            const elapsed = (performance.now() - taskStartTime) / 1000;
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = String(Math.floor(elapsed % 60)).padStart(2, '0');
+            document.getElementById('task-timer').innerText = `${minutes}:${seconds}`;
+            document.getElementById('task-points').innerText = `${pointsForElapsed(elapsed, scenarios[activeScenarioIndex].par)} pts`;
+        }
+
+        // ----- FEEDBACK OVERLAY: appears over the console, then fades away on its own -----
+        function showFeedbackOverlay(kind, title, detail, subDetail) {
+            const overlay = document.getElementById('feedback-overlay');
+            document.getElementById('feedback-title').innerText = title;
+            document.getElementById('feedback-detail').innerText = detail || '';
+            document.getElementById('feedback-sub').innerText = subDetail || '';
+            overlay.className = `feedback-overlay ${kind}`;
+            void overlay.offsetWidth;                       // restart the animation if it is already showing
+            overlay.className = `feedback-overlay ${kind} show`;
+        }
+
+        function updateScenarioUI() {
+            const currentScenario = scenarios[activeScenarioIndex];
+            document.getElementById('m32-tip').innerText = `[Task ${activeScenarioIndex + 1}/${scenarios.length}] ${currentScenario.text}`;
+            taskStartTime = performance.now();
+            updateLiveTaskScore();
+        }
+
+        
+function formatFaderReadout(percentValue) {
+            // Strip readouts omit the unit so they fit narrow strips (the Main LR readout keeps " dB")
+            return convertPercentageToDbScaleString(percentValue).replace(' dB', '');
+        }
+
+        // What the input faders currently control: the channel level, or (in Sends on Faders) the send to the selected bus
+        function getInputFaderValue(ch) {
+            return sendsOnFadersActive ? ch.sends[selectedSendBus - 1] : ch.faderPositionPercent;
+        }
+
+        function setInputFaderValue(ch, percentValue) {
+            if (sendsOnFadersActive) ch.sends[selectedSendBus - 1] = percentValue;
+            else ch.faderPositionPercent = percentValue;
+        }
+
+        function renderActiveInputStripsBay() {
+            const container = document.getElementById('input-fader-strips-bay');
+            container.innerHTML = '';
+
+            let offsetStart = currentInputLayer === '1-16' ? 1 : 17;
+            let totalFadersCount = 16;
+
+            for (let i = offsetStart; i < offsetStart + totalFadersCount; i++) {
+                const ch = matrixConsoleData.inputs[i];
+                if (!ch) continue;
+
+                const faderValue = getInputFaderValue(ch);
+                const isChSelected = currentlySelectedChannelId === ch.id;
+                let activeStripBg;
+                if (sendsOnFadersActive) {
+                    activeStripBg = isChSelected ? 'bg-amber-950/30 border-amber-600/70' : 'bg-amber-950/15 border-amber-900/50';
+                } else {
+                    activeStripBg = isChSelected ? 'bg-slate-900 border-slate-700' : 'bg-slate-900/40 border-slate-950';
+                }
+                const selectButtonClass = isChSelected ? 'active text-white' : 'text-slate-400 hover:text-white';
+                const muteButtonClass = ch.isMuted ? 'active text-white' : 'text-slate-500';
+                const customScribbleColor = stripColors[ch.id] || "bg-slate-900 text-cyan-500 border-slate-800";
+                const readoutColor = sendsOnFadersActive ? 'text-amber-300' : '';
+
+                const stripNode = document.createElement('div');
+                stripNode.className = `strip border rounded-lg shadow-xl relative ${activeStripBg}`;
+                stripNode.style.gridColumn = String(i - offsetStart + 1);
+                stripNode.style.gridRow = '2';
+                stripNode.innerHTML = `
+                    <button onclick="executeChannelFocusLock(${ch.id})" class="strip-btn w-full fs-sm rounded console-btn-sel text-slate-300 tracking-wide uppercase ${selectButtonClass}">
+                        SEL
+                    </button>
+
+                    <div class="strip-meter w-2.5 bg-slate-950/90 rounded flex flex-col gap-[1px] p-[1px] justify-end border border-slate-900 shadow-inner">
+                        <div id="vu-stack-${ch.id}-5" class="w-full flex-1 min-h-0 rounded-sm bg-slate-900 meter-segment"></div>
+                        <div id="vu-stack-${ch.id}-4" class="w-full flex-1 min-h-0 rounded-sm bg-slate-900 meter-segment"></div>
+                        <div id="vu-stack-${ch.id}-3" class="w-full flex-1 min-h-0 rounded-sm bg-slate-900 meter-segment"></div>
+                        <div id="vu-stack-${ch.id}-2" class="w-full flex-1 min-h-0 rounded-sm bg-slate-900 meter-segment"></div>
+                        <div id="vu-stack-${ch.id}-1" class="w-full flex-1 min-h-0 rounded-sm bg-slate-900 meter-segment"></div>
+                    </div>
+
+                    <div class="fader-track rounded-full flex-1 min-h-[60px] flex justify-center items-end py-1 my-1">
+                        <div id="input-fader-handle-${ch.id}" class="fader-handle absolute"
+                             style="bottom: calc(${faderValue}% - 22px);"
+                             onmousedown="startInputChannelSliderDrag(event, ${ch.id})">
+                            <div class="w-full h-[2px] bg-slate-950 absolute top-1/2 left-0 -translate-y-1/2 opacity-70"></div>
+                        </div>
+                    </div>
+
+                    <div class="strip-readout w-full scribble-strip rounded px-0.5 text-center shadow flex flex-col justify-center overflow-hidden ${customScribbleColor}" title="Channel ${ch.name}">
+                        <div class="fs-num font-bold leading-none font-mono">${ch.name}</div>
+                        <div class="fs-xs font-mono opacity-90 block tracking-tighter ${readoutColor}" id="input-fader-db-label-${ch.id}">${formatFaderReadout(faderValue)}</div>
+                    </div>
+
+                    <button onclick="toggleInputChannelMuteState(${ch.id})" class="strip-btn w-full fs-sm rounded console-btn-mute tracking-wide uppercase transition-all ${muteButtonClass}">
+                        MUTE
+                    </button>
+                `;
+                container.appendChild(stripNode);
+            }
+        }
+
+        function renderActiveMasterStripsBay() {
+            const container = document.getElementById('master-fader-strips-bay');
+            container.innerHTML = '';
+
+            const currentBusesList = matrixConsoleData.masters[currentMasterLayer];
+            const isBusLayer = currentMasterLayer === 'BUS1-8' || currentMasterLayer === 'BUS9-16';
+
+            currentBusesList.forEach((bus, arrayIdx) => {
+                const stripNode = document.createElement('div');
+                stripNode.style.gridColumn = String(arrayIdx + 18);
+                stripNode.style.gridRow = '2';
+
+                if (bus.unassigned) {
+                    // Unassigned slot: dimmed strip with no fader handle, keeps the 8-fader section aligned
+                    stripNode.className = "strip bg-slate-900/30 border border-slate-950 rounded-lg opacity-50";
+                    stripNode.innerHTML = `
+                        <div class="strip-btn w-full"></div>
+                        <div class="strip-meter"></div>
+                        <div class="fader-track rounded-full flex-1 min-h-[60px] my-1 opacity-40"></div>
+                        <div class="strip-readout w-full flex items-center justify-center fs-xs font-mono text-slate-600">--</div>
+                        <div class="strip-btn w-full"></div>
+                    `;
+                    container.appendChild(stripNode);
+                    return;
+                }
+
+                const muteButtonClass = bus.isMuted ? 'active text-white' : 'text-slate-500';
+
+                // On the BUS layers the name key doubles as the "select this bus" key for Sends on Faders
+                let topKey;
+                if (isBusLayer) {
+                    const busNumber = currentMasterLayer === 'BUS1-8' ? arrayIdx + 1 : arrayIdx + 9;
+                    const keyClass = selectedSendBus === busNumber ? 'active text-white' : 'text-slate-300 hover:text-white';
+                    topKey = `<button onclick="selectSendBus(${busNumber})" class="strip-btn w-full fs-sm rounded console-btn-sel uppercase tracking-tight truncate ${keyClass}" title="Select ${bus.name}">${bus.name}</button>`;
+                } else {
+                    topKey = `<div class="strip-btn w-full flex items-center justify-center rounded bg-slate-950/70 border border-slate-950 fs-sm text-slate-400 font-bold uppercase font-mono tracking-tight text-center truncate" title="${bus.name}">${bus.name}</div>`;
+                }
+
+                stripNode.className = "strip bg-slate-900 border border-slate-950 rounded-lg shadow-xl";
+                stripNode.innerHTML = `
+                    ${topKey}
+
+                    <!-- spacer keeps this fader level with the input faders (no meter on masters) -->
+                    <div class="strip-meter"></div>
+
+                    <div class="fader-track rounded-full flex-1 min-h-[60px] flex justify-center items-end py-1 my-1">
+                        <div id="master-fader-handle-${arrayIdx}" class="fader-handle absolute"
+                             style="bottom: calc(${bus.faderPositionPercent}% - 22px);"
+                             onmousedown="startMasterChannelSliderDrag(event, '${currentMasterLayer}', ${arrayIdx})">
+                            <div class="w-full h-[2px] bg-slate-950 absolute top-1/2 left-0 -translate-y-1/2 opacity-70"></div>
+                        </div>
+                    </div>
+
+                    <div class="strip-readout w-full flex items-center justify-center fs-xs font-mono text-emerald-400 bg-slate-950 rounded border border-slate-900 text-center truncate shadow-inner" id="master-fader-db-label-${arrayIdx}">${formatFaderReadout(bus.faderPositionPercent)}</div>
+
+                    <button onclick="toggleMasterChannelMuteState('${currentMasterLayer}', ${arrayIdx})" class="strip-btn w-full fs-sm rounded console-btn-mute text-center transition-all ${muteButtonClass}">
+                        MUTE
+                    </button>
+                `;
+                container.appendChild(stripNode);
+            });
+        }
+
+        // ----- SENDS ON FADERS -----
+        function selectSendBus(busNumber) {
+            selectedSendBus = busNumber;
+            document.getElementById('console-status-text').innerText = `Send bus picked: Bus ${busNumber}`;
+            updateSendsUI();
+            renderActiveMasterStripsBay();
+            if (sendsOnFadersActive) renderActiveInputStripsBay();
+            displaySurfaceToastFeedback(`Bus ${busNumber} selected`);
+        }
+
+        function toggleSendsOnFaders() {
+            sendsOnFadersActive = !sendsOnFadersActive;
+            if (sendsOnFadersActive && selectedSendBus === null) selectedSendBus = 1;
+
+            document.getElementById('console-status-text').innerText = sendsOnFadersActive
+                ? `Sends on Faders ON: input faders now set the send to Bus ${selectedSendBus}`
+                : 'Sends on Faders OFF: input faders set the channel level again';
+
+            updateSendsUI();
+            renderActiveInputStripsBay();
+            renderActiveMasterStripsBay();
+            displaySurfaceToastFeedback(sendsOnFadersActive ? `Sends on Faders: Bus ${selectedSendBus}` : 'Sends on Faders: OFF');
+        }
+
+        function updateSendsUI() {
+            const btnClassOn = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-amber-500/20 border-amber-500/60 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.35)]";
+            const btnClassOff = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200";
+            document.getElementById('btn-sends-on-faders').className = sendsOnFadersActive ? btnClassOn : btnClassOff;
+
+            let chipText = 'OFF';
+            if (sendsOnFadersActive) chipText = `SENDING TO BUS ${selectedSendBus}`;
+            else if (selectedSendBus !== null) chipText = `BUS ${selectedSendBus} PICKED`;
+            document.getElementById('sends-status-label').innerText = chipText;
+
+            const sectionLabel = document.getElementById('input-section-label');
+            sectionLabel.innerText = sendsOnFadersActive ? `Sends to Bus ${selectedSendBus} (faders = send level)` : 'Input Channels';
+            sectionLabel.className = sendsOnFadersActive ? 'section-label sends-active' : 'section-label';
+        }
+
+        
+function switchInputLayer(targetLayerKey) {
+            currentInputLayer = targetLayerKey;
+            document.getElementById('screen-input-layer').innerText = `CH ${targetLayerKey}`;
+
+            const btn1 = document.getElementById('btn-input-l1');
+            const btn2 = document.getElementById('btn-input-l2');
+
+            if (targetLayerKey === '1-16') {
+                btn1.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-cyan-600/20 border-cyan-500/50 text-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.2)]";
+
+                btn2.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200";
+            } else {
+                btn2.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-cyan-600/20 border-cyan-500/50 text-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.2)]";
+                btn1.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200";
+            }
+
+            document.getElementById('input-layer-title-label').innerText = `CH ${targetLayerKey} ACTIVE`;
+            renderActiveInputStripsBay();
+            displaySurfaceToastFeedback(`Layer Shift: ${targetLayerKey}`);
+        }
+
+        function switchMasterLayer(targetMasterLayerKey) {
+            currentMasterLayer = targetMasterLayerKey;
+            document.getElementById('screen-master-bank').innerText = targetMasterLayerKey;
+
+            const MasterIdKeysMap = {'DCA': 'btn-master-m1', 'BUS1-8': 'btn-master-m2', 'BUS9-16': 'btn-master-m3', 'MTX': 'btn-master-m4'};
+            Object.keys(MasterIdKeysMap).forEach(key => {
+                const btnNode = document.getElementById(MasterIdKeysMap[key]);
+                if(key === targetMasterLayerKey) {
+
+                    btnNode.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-emerald-600/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.2)]";
+                } else {
+                    btnNode.className = "py-1 px-3 rounded border font-bold text-[10px] tracking-wide transition-all bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200";
+                }
+            });
+
+            renderActiveMasterStripsBay();
+            displaySurfaceToastFeedback(`Master Layer: ${targetMasterLayerKey}`);
+        }
+
+        function executeChannelFocusLock(chId) {
+            currentlySelectedChannelId = chId;
+            document.getElementById('screen-selected-ch').innerText = `CH ${String(chId).padStart(2, '0')}`;
+            
+            const targetChannelObj = matrixConsoleData.inputs[chId];
+            document.getElementById('console-status-text').innerText = `Channel ${targetChannelObj.name} selected`;
+
+            renderActiveInputStripsBay();
+        }
+
+
+        function startInputChannelSliderDrag(e, chId) {
+            e.preventDefault();
+            const handle = document.getElementById(`input-fader-handle-${chId}`);
+            const track = handle.parentElement;
+            const trackRect = track.getBoundingClientRect();
+            const totalHeight = trackRect.height;
+
+            function processMouseMove(moveEvent) {
+                let currentDeltaY = trackRect.bottom - moveEvent.clientY;
+                let finalPercentageValue = (currentDeltaY / totalHeight) * 100;
+
+                if (finalPercentageValue < 0) finalPercentageValue = 0;
+                if (finalPercentageValue > 100) finalPercentageValue = 100;
+
+                setInputFaderValue(matrixConsoleData.inputs[chId], finalPercentageValue);
+                handle.style.bottom = `calc(${finalPercentageValue}% - 22px)`;
+
+                document.getElementById(`input-fader-db-label-${chId}`).innerText = formatFaderReadout(finalPercentageValue);
+            }
+
+
+            function processMouseUp() {
+                document.removeEventListener('mousemove', processMouseMove);
+                document.removeEventListener('mouseup', processMouseUp);
+            }
+            document.addEventListener('mousemove', processMouseMove);
+            document.addEventListener('mouseup', processMouseUp);
+        }
+
+        function startMasterChannelSliderDrag(e, layerKey, arrayIdx) {
+            e.preventDefault();
+            const handle = document.getElementById(`master-fader-handle-${arrayIdx}`);
+            const track = handle.parentElement;
+            const trackRect = track.getBoundingClientRect();
+            const totalHeight = trackRect.height;
+
+            function processMouseMove(moveEvent) {
+                let currentDeltaY = trackRect.bottom - moveEvent.clientY;
+                let finalPercentageValue = (currentDeltaY / totalHeight) * 100;
+
+
+                if (finalPercentageValue < 0) finalPercentageValue = 0;
+                if (finalPercentageValue > 100) finalPercentageValue = 100;
+
+                matrixConsoleData.masters[layerKey][arrayIdx].faderPositionPercent = finalPercentageValue;
+                handle.style.bottom = `calc(${finalPercentageValue}% - 22px)`;
+
+                document.getElementById(`master-fader-db-label-${arrayIdx}`).innerText = formatFaderReadout(finalPercentageValue);
+            }
+
+            function processMouseUp() {
+                document.removeEventListener('mousemove', processMouseMove);
+                document.removeEventListener('mouseup', processMouseUp);
+            }
+            document.addEventListener('mousemove', processMouseMove);
+            document.addEventListener('mouseup', processMouseUp);
+        }
+
+        function initiateMainLrFaderDrag(e) {
+            e.preventDefault();
+
+            const handle = document.getElementById('fader-handle-main-lr');
+            const track = handle.parentElement;
+            const trackRect = track.getBoundingClientRect();
+            const totalHeight = trackRect.height;
+
+            function processMouseMove(moveEvent) {
+                let currentDeltaY = trackRect.bottom - moveEvent.clientY;
+                let finalPercentageValue = (currentDeltaY / totalHeight) * 100;
+
+                if (finalPercentageValue < 0) finalPercentageValue = 0;
+                if (finalPercentageValue > 100) finalPercentageValue = 100;
+
+                mainStereoVolumeValue = finalPercentageValue;
+                handle.style.bottom = `calc(${finalPercentageValue}% - 22px)`;
+                document.getElementById('label-main-lr-db').innerText = convertPercentageToDbScaleString(finalPercentageValue);
+            }
+
+            function processMouseUp() {
+                document.removeEventListener('mousemove', processMouseMove);
+
+                document.removeEventListener('mouseup', processMouseUp);
+            }
+            document.addEventListener('mousemove', processMouseMove);
+            document.addEventListener('mouseup', processMouseUp);
+        }
+
+        function toggleInputChannelMuteState(id) { matrixConsoleData.inputs[id].isMuted = !matrixConsoleData.inputs[id].isMuted; renderActiveInputStripsBay(); }
+        function toggleMasterChannelMuteState(layerKey, idx) { matrixConsoleData.masters[layerKey][idx].isMuted = !matrixConsoleData.masters[layerKey][idx].isMuted; renderActiveMasterStripsBay(); }
+
+        // The number shown on a readout, as a whole dB (rounded). Tasks are checked against this same number,
+// so "what you see is what is checked". Bottom of the fader (0-2%) counts as -infinity.
+        function shownDb(percentValue) {
+            if (percentValue <= 2) return -Infinity;
+            return Math.round((percentValue / 10) - 6);
+        }
+
+        function convertPercentageToDbScaleString(percentValue) {
+            const db = shownDb(percentValue);
+            if (db === -Infinity) return '-∞ dB';
+            return `${db > 0 ? '+' : ''}${db}.0 dB`;
+        }
+
+        function channelLevelDb(chId) { return shownDb(matrixConsoleData.inputs[chId].faderPositionPercent); }
+        function sendLevelDb(chId, busNumber) { return shownDb(matrixConsoleData.inputs[chId].sends[busNumber - 1]); }
+
+        
+function executeSignalVUFluctuationClockLoop() {
+            setInterval(() => {
+                let offsetStart = currentInputLayer === '1-16' ? 1 : 17;
+                let totalCount = 16;
+
+
+                for (let i = offsetStart; i < offsetStart + totalCount; i++) {
+                    if (!matrixConsoleData.inputs[i]) continue;
+                    const ch = matrixConsoleData.inputs[i];
+
+                    for (let l = 1; l <= 5; l++) {
+                        const cellNode = document.getElementById(`vu-stack-${ch.id}-${l}`);
+                        if (cellNode) cellNode.style.backgroundColor = '#0f172a';
+                    }
+
+                    if (ch.isMuted) continue;
+
+                    const randomVarianceValue = Math.random() * 15;
+                    const liveHeightCalculation = ch.faderPositionPercent - randomVarianceValue;
+
+                    if (liveHeightCalculation > 10 && document.getElementById(`vu-stack-${ch.id}-1`)) document.getElementById(`vu-stack-${ch.id}-1`).style.backgroundColor = '#10b981'; 
+                    if (liveHeightCalculation > 30 && document.getElementById(`vu-stack-${ch.id}-2`)) document.getElementById(`vu-stack-${ch.id}-2`).style.backgroundColor = '#10b981'; 
+                    if (liveHeightCalculation > 50 && document.getElementById(`vu-stack-${ch.id}-3`)) document.getElementById(`vu-stack-${ch.id}-3`).style.backgroundColor = '#10b981'; 
+                    if (liveHeightCalculation > 70 && document.getElementById(`vu-stack-${ch.id}-4`)) document.getElementById(`vu-stack-${ch.id}-4`).style.backgroundColor = '#eab308'; 
+                    if (liveHeightCalculation > 88 && document.getElementById(`vu-stack-${ch.id}-5`)) document.getElementById(`vu-stack-${ch.id}-5`).style.backgroundColor = '#ef4444'; 
+
+                }
+
+                const masterVuL = document.getElementById('vu-main-l');
+                const masterVuR = document.getElementById('vu-main-r');
+                if (masterVuL && masterVuR) {
+                    let calculatedSum = 0;
+                    for (let i = 1; i <= 16; i++) calculatedSum += matrixConsoleData.inputs[i].faderPositionPercent;
+                    let postProcessedAverageValue = Math.min(100, Math.max(10, (calculatedSum / 16) * (mainStereoVolumeValue / 100) + (Math.random() * 8 - 4)));
+                    masterVuL.style.height = `${postProcessedAverageValue}%`;
+                    masterVuR.style.height = `${Math.max(8, postProcessedAverageValue - (Math.random() * 3))}%`;
+                }
+            }, 100);
+        }
+
+        function displaySurfaceToastFeedback(messageString) {
+            const toastNode = document.getElementById('m32-toast-node');
+            toastNode.innerText = messageString;
+            toastNode.className = "opacity-100 min-w-[120px] text-[9px] bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 p-1 rounded text-center transition-all duration-300";
+            clearTimeout(window.m32ToastTimeoutClock);
+
+            window.m32ToastTimeoutClock = setTimeout(() => {
+                toastNode.className = "opacity-0 min-w-[120px] text-[9px] bg-cyan-950/40 border border-cyan-800/60 text-cyan-400 p-1 rounded text-center transition-all duration-300";
+            }, 1200);
+        }
+
+        function checkM32FaderState() {
+            const activeScenario = scenarios[activeScenarioIndex];
+
+            if (activeScenario.validate()) {
+                const elapsedSeconds = (performance.now() - taskStartTime) / 1000;
+                const earned = pointsForElapsed(elapsedSeconds, activeScenario.par);
+                totalScore += earned;
+                bestScore = Math.max(bestScore, totalScore);
+                triggerSuccessBellSound();
+
+                const wasLastTask = activeScenarioIndex === scenarios.length - 1;
+                if (wasLastTask) {
+                    showFeedbackOverlay('success', 'ROUND COMPLETE', `+${earned} pts`, `Final score: ${totalScore.toLocaleString()}  -  starting over`);
+                    totalScore = 0;
+                    activeScenarioIndex = 0;
+                    resetConsoleForNewRound();
+                } else {
+                    showFeedbackOverlay('success', 'CRUSHING!', `+${earned} pts`, `${elapsedSeconds.toFixed(1)} seconds`);
+                    activeScenarioIndex++;
+                }
+
+                updateScoreDisplay();
+                updateScenarioUI();
+                renderActiveInputStripsBay();
+                renderActiveMasterStripsBay();
+            } else {
+                showFeedbackOverlay('fail', 'TRY AGAIN', 'Not quite yet', 'Check the task and the readouts');
+            }
+        }
     
-    
+</script>
+</body>
+</html>
 
 
-
-
-<script type="module" src="https://s.brightspace.com/lib/bsi/2026.10.234/unbundled/mathjax.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
-			if (document.querySelector('math, .d2l-element, .d2l-cplus-layout') || /\$\$|\\\(|\\\[|\\begin{|\\ref{|\\eqref{/.test(document.body.innerHTML)) {
-				document.querySelectorAll('mspace[linebreak="newline"]').forEach(elm => {
-					elm.setAttribute('style', 'display: block; height: 0.5rem;');
-				});
-
-				document.querySelectorAll('math mmultiscripts > none').forEach(elm => {
-					const mrow = document.createElementNS('http://www.w3.org/1998/Math/MathML', 'mrow');
-					elm.replaceWith(mrow);
-				});
-
-				window.D2L.MathJax.loadMathJax({"renderLatex":true,"outputScale":1.5,"enableMML3Support":false});
-			}
-		});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2026.10.234/unbundled/prism.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
-					document.querySelectorAll('.d2l-code').forEach(code => {
-						window.D2L.Prism.formatCodeElement(code);
-					});
-				});</script><script type="module" src="https://s.brightspace.com/lib/bsi/2026.10.234/unbundled/embeds.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
-					window.D2L.EmbedRenderer.renderEmbeds(document.body);
-				});</script></body></html>
